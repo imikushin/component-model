@@ -13,10 +13,15 @@ WebAssembly values.
   * [Flattening](#flattening)
   * [Flat Lifting](#flat-lifting)
   * [Flat Lowering](#flat-lowering)
-  * [Lifting and Lowering](#lifting-and-lowering)
+  * [Lifting and Lowering Values](#lifting-and-lowering-values)
+  * [Lifting and Lowering Functions](#lifting-and-lowering-functions)
 * [Canonical definitions](#canonical-definitions)
-  * [`lift`](#lift)
-  * [`lower`](#lower)
+  * [`canon lift`](#canon-lift)
+  * [`canon lower`](#canon-lower)
+* [Canonical ABI](#canonical-abi)
+  * [Mangling](#mangling)
+  * [Unmangling](#unmangling)
+  * [Lifting Canonical ABI Modules](#lifting-canonical-abi-modules)
 
 
 ## Supporting definitions
@@ -1034,7 +1039,7 @@ def lower_flat_flags(v, labels):
   return flat
 ```
 
-### Lifting and Lowering
+### Lifting and Lowering Values
 
 The `lift` function defines how to lift a list of at most `max_flat` core
 parameters or results given by the `ValueIter` `vi` into a tuple of values with
@@ -1076,7 +1081,7 @@ def lower(opts, max_flat, vs, ts, out_param = None):
     return flat_vals
 ```
 
-## Canonical ABI built-ins
+## Canonical Definitions
 
 Using the above supporting definitions, we can describe the static and dynamic
 semantics of [`canon`], whose AST is defined in the main explainer as:
@@ -1088,7 +1093,7 @@ The following subsections define the static and dynamic semantics of each
 case of `funcbody`.
 
 
-### `lift`
+### `canon lift`
 
 For a function:
 ```
@@ -1186,7 +1191,7 @@ re-entrance, it would be an error that only manifested in certain component
 linking configurations, hence the eager error helps ensure compositionality.
 
 
-### `lower`
+### `canon lower`
 
 For a function:
 ```
@@ -1243,6 +1248,21 @@ single, efficient trampoline. This fusion model allows efficient compilation of
 the permissive [subtyping](Subtyping.md) allowed between components (including
 the elimination of string operations on the labels of records and variants) as
 well as post-MVP [adapter functions].
+
+
+## Canonical ABI
+
+TODO:
+* Explain how the Canonical ABI can capture a subset of what's expressible
+  in a component via `canon` definitions and linking.
+* Show diagram with picture and isomorphic subsets
+* Enumerate the subset
+
+### Mangling
+
+### Unmangling
+
+### Lifting Canonical ABI Modules
 
 
 [Canonical Definitions]: Explainer.md#canonical-definitions

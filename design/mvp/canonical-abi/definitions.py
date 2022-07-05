@@ -6,7 +6,7 @@
 
 import math
 import struct
-import types
+import typing
 from dataclasses import dataclass
 
 class Trap(BaseException): pass
@@ -19,7 +19,25 @@ def trap_if(cond):
   if cond:
     raise Trap()
 
-class ValType: pass
+class Type: pass
+
+@dataclass
+class CoreFuncType(Type):
+  params: [str]
+  results: [str]
+
+@dataclass
+class CoreImportDecl:
+  module: str
+  field: str
+  t: CoreFuncType
+
+@dataclass
+class CoreExportDecl:
+  name: str
+  t: CoreFuncType
+
+class ValType(Type): pass
 class Unit(ValType): pass
 class Bool(ValType): pass
 class S8(ValType): pass
@@ -83,10 +101,49 @@ class Expected(ValType):
   ok: ValType
   error: ValType
 
+class ExternType(Type): pass
+
 @dataclass
-class Func:
+class FuncType(ExternType):
   params: [ValType]
   result: ValType
+
+@dataclass
+class ValueType(ExternType):
+  t: ValType
+
+@dataclass
+class Eq:
+  equals: Type
+
+@dataclass
+class TypeType(ExternType):
+  bound: Eq
+
+@dataclass
+class ModuleType(ExternType):
+  imports: [CoreImportDecl]
+  exports: [CoreExportDecl]
+
+@dataclass
+class ExportDecl:
+  name: str
+  t: ExternType
+
+@dataclass
+class ImportDecl:
+  name: str
+  t: ExternType
+
+@dataclass
+class InstanceType(ExternType):
+  exports: [ExportDecl]
+
+@dataclass
+class ComponentType(ExternType):
+  imports: [ImportDecl]
+  exports: [ExportDecl]
+
 
 ### Despecialization
 
@@ -195,8 +252,8 @@ def num_i32_flags(labels):
 class Opts:
   string_encoding: str
   memory: bytearray
-  realloc: types.FunctionType
-  post_return: types.FunctionType
+  realloc: typing.Callable[[int,int,int,int],int]
+  post_return: typing.Callable[[],None]
 
 def load(opts, ptr, t):
   assert(ptr == align_to(ptr, alignment(t)))
@@ -831,7 +888,7 @@ def lower_flat_flags(v, labels):
   assert(i == 0)
   return flat
 
-### Lifting and Lowering
+### Lifting and Lowering Values
 
 def lift(opts, max_flat, vi, ts):
   flat_types = flatten_types(ts)
@@ -909,3 +966,33 @@ def canon_lower(caller_opts, caller_instance, callee, functype, flat_args):
   post_return()
 
   return flat_results
+
+## Mangle
+
+def mangle(ct: ComponentType) -> ModuleType:
+  pass
+  # - component imports/exports, module exports: not supported in default ABI
+  # - type imports/exports: not supported (but later with resource types)
+  # - module imports: TODO, but later define
+  # - instance imports/exports: recurse and include in names
+  # - func imports/exports: core functions
+  # - value imports/exports: attach to "main(X)->(Y)" core export
+
+## Unmangle
+
+def unmangle(mt: ModuleType) -> ComponentType:
+  pass
+
+## Lifting Canonical ABI Modules
+
+class Module:
+  t: ModuleType
+  instantiate: typing.Callable[typing.List[typing.Tuple[str,str,Value]], typing.List[typing.Tuple[str,Value]]]
+
+class Component:
+  t: ComponentType
+  instantiate: typing.Callable[typing.List[typing.Tuple[str,any]], typing.List[typing.Tuple[str,any]]]
+
+def canonical_lift(module: Module) -> Component:
+  # - test roundtrip
+  pass

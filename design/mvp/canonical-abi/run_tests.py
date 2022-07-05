@@ -324,19 +324,19 @@ def test_flatten(t, params, results):
   got = flatten(t, 'lower')
   assert(got == expect)
   
-test_flatten(Func([U8(),Float32(),Float64()],Unit()), ['i32','f32','f64'], [])
-test_flatten(Func([U8(),Float32(),Float64()],Float32()), ['i32','f32','f64'], ['f32'])
-test_flatten(Func([U8(),Float32(),Float64()],U8()), ['i32','f32','f64'], ['i32'])
-test_flatten(Func([U8(),Float32(),Float64()],Tuple([Float32()])), ['i32','f32','f64'], ['f32'])
-test_flatten(Func([U8(),Float32(),Float64()],Tuple([Float32(),Float32()])), ['i32','f32','f64'], ['f32','f32'])
-test_flatten(Func([U8() for _ in range(17)],Unit()), ['i32' for _ in range(17)], [])
-test_flatten(Func([U8() for _ in range(17)],Tuple([U8(),U8()])), ['i32' for _ in range(17)], ['i32','i32'])
+test_flatten(FuncType([U8(),Float32(),Float64()],Unit()), ['i32','f32','f64'], [])
+test_flatten(FuncType([U8(),Float32(),Float64()],Float32()), ['i32','f32','f64'], ['f32'])
+test_flatten(FuncType([U8(),Float32(),Float64()],U8()), ['i32','f32','f64'], ['i32'])
+test_flatten(FuncType([U8(),Float32(),Float64()],Tuple([Float32()])), ['i32','f32','f64'], ['f32'])
+test_flatten(FuncType([U8(),Float32(),Float64()],Tuple([Float32(),Float32()])), ['i32','f32','f64'], ['f32','f32'])
+test_flatten(FuncType([U8() for _ in range(17)],Unit()), ['i32' for _ in range(17)], [])
+test_flatten(FuncType([U8() for _ in range(17)],Tuple([U8(),U8()])), ['i32' for _ in range(17)], ['i32','i32'])
 
 def test_roundtrip(t, v):
   before = definitions.MAX_FLAT_RESULTS
   definitions.MAX_FLAT_RESULTS = 16
 
-  ft = Func([t],t)
+  ft = FuncType([t],t)
   callee_instance = Instance()
   callee = lambda x: x
 
